@@ -1,7 +1,7 @@
 package br.com.codenation.CentralDeErros.model;
 
 
-//import br.com.codenation.CentralDeErros.enums.Levels;
+import br.com.codenation.CentralDeErros.enums.Levels;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -16,10 +16,10 @@ public class ErrorEventLog {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
 
-//    @Column(length = 10)
-//    @NotNull
-//    @Enumerated(EnumType.STRING)
-//    private Levels level;
+    @Column(length = 10)
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private Levels level;
 
     @Column(length = 300)
     @NotNull
