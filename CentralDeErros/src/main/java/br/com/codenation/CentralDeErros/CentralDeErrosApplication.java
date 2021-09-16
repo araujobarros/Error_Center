@@ -1,10 +1,27 @@
 package br.com.codenation.CentralDeErros;
 
+import net.kaczmarzyk.spring.data.jpa.web.SpecificationArgumentResolver;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@SpringBootApplication
-public class CentralDeErrosApplication {
+import java.util.List;
+
+@SpringBootConfiguration
+@ComponentScan(basePackages="br.com.codenation.CentralDeErros")
+@EnableAutoConfiguration
+public class CentralDeErrosApplication implements WebMvcConfigurer {
+
+	@Override
+	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+		argumentResolvers.add(new SpecificationArgumentResolver());
+		argumentResolvers.add(new PageableHandlerMethodArgumentResolver());
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(CentralDeErrosApplication.class, args);

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
-@Entity
+@Entity(name="error_event_log")
 public class ErrorEventLog {
 
     @Id
