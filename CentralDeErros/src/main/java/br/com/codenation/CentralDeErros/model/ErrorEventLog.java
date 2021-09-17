@@ -2,6 +2,7 @@ package br.com.codenation.CentralDeErros.model;
 
 
 import br.com.codenation.CentralDeErros.enums.Levels;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -23,6 +24,7 @@ public class ErrorEventLog {
 
     @Column(length = 300)
     @NotNull
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String log;
 
     @Column(length = 500)

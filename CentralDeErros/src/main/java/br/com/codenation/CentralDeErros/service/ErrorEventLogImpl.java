@@ -3,6 +3,7 @@ package br.com.codenation.CentralDeErros.service;
 import br.com.codenation.CentralDeErros.enums.Levels;
 import br.com.codenation.CentralDeErros.model.ErrorEventLog;
 import br.com.codenation.CentralDeErros.repository.ErrorEventLogRepository;
+import br.com.codenation.CentralDeErros.repository.ErrorEventLogRepositoryId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,9 @@ public class ErrorEventLogImpl implements ErrorEventLogService {
 
     @Autowired
     private ErrorEventLogRepository errorEventLogRepository;
+
+//    @Autowired
+//    private ErrorEventLogRepositoryId errorEventLogRepositoryId;
 
 
     @Override

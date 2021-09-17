@@ -1,6 +1,9 @@
 package br.com.codenation.CentralDeErros.controller;
 
+import br.com.codenation.CentralDeErros.DTO.ErrorEventLogDTO;
+import br.com.codenation.CentralDeErros.controller.advice.ResourceNotFoundException;
 import br.com.codenation.CentralDeErros.enums.Levels;
+import br.com.codenation.CentralDeErros.mapper.MapStructMapper;
 import br.com.codenation.CentralDeErros.model.ErrorEventLog;
 import br.com.codenation.CentralDeErros.repository.ErrorEventLogRepository;
 import br.com.codenation.CentralDeErros.service.ErrorEventLogService;
@@ -19,11 +22,21 @@ import javax.validation.Valid;
 @RequestMapping("/")
 public class ErrorEventLogController {
 
-    @Autowired
+
+    private MapStructMapper mapStructMapper;
+
+
     private ErrorEventLogService errorEventLogService;
 
-    @Autowired
+
     private ErrorEventLogRepository errorEventLogRepository;
+
+    @Autowired
+    public ErrorEventLogController(MapStructMapper mapStructMapper, ErrorEventLogService errorEventLogService, ErrorEventLogRepository errorEventLogRepository) {
+        this.mapStructMapper = mapStructMapper;
+        this.errorEventLogService = errorEventLogService;
+        this.errorEventLogRepository = errorEventLogRepository;
+    }
 
     @PostMapping
     @ApiOperation("Cria um log de erro")
@@ -38,6 +51,30 @@ public class ErrorEventLogController {
     public Iterable<ErrorEventLog> findAll(Pageable pageable) {
         return this.errorEventLogService.findAll(pageable);
     }
+
+    @GetMapping(value = "/event/{id}")
+    @ApiResponses(value = {@ApiResponse(code = 404, message = "Evento não localizado"), @ApiResponse(code = 200, message = "evento localizado")})
+    public ResponseEntity<ErrorEventLogDTO> getById(
+            @PathVariable(value = "id") Long id
+    ) {
+        return new ResponseEntity<>(
+                mapStructMapper.errorEventLogToErrorEventLogDTO(
+                        this.errorEventLogService.findById(id).get()
+                ),
+                HttpStatus.OK
+        );
+    }
+
+//    @GetMapping("/event/{id}")
+//    @ApiResponses(value = {@ApiResponse(code = 404, message = "Evento não localizado"), @ApiResponse(code = 200, message = "evento localizado")})
+//    public ResponseEntity<ErrorEventLog> getById(
+//            @PathVariable(value = "id") Long id
+//    ) {
+//        return new ResponseEntity<ErrorEventLog>(
+//                        this.errorEventLogService.findById(id).get(),
+//                HttpStatus.OK
+//        );
+//    }
 
 
     @ApiImplicitParams({
