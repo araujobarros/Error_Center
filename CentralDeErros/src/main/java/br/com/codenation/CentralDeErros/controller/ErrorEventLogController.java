@@ -1,7 +1,6 @@
 package br.com.codenation.CentralDeErros.controller;
 
 import br.com.codenation.CentralDeErros.DTO.ErrorEventLogDTO;
-import br.com.codenation.CentralDeErros.controller.advice.ResourceNotFoundException;
 import br.com.codenation.CentralDeErros.enums.Levels;
 import br.com.codenation.CentralDeErros.mapper.MapStructMapper;
 import br.com.codenation.CentralDeErros.model.ErrorEventLog;
@@ -12,23 +11,21 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.swing.*;
 import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/")
 public class ErrorEventLogController {
 
-
     private MapStructMapper mapStructMapper;
-
-
     private ErrorEventLogService errorEventLogService;
-
-
     private ErrorEventLogRepository errorEventLogRepository;
 
     @Autowired
@@ -39,61 +36,44 @@ public class ErrorEventLogController {
     }
 
     @PostMapping
-    @ApiOperation("Cria um log de erro")
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Log criado com sucesso")})
-    public ResponseEntity<ErrorEventLog> create(@Valid @RequestBody ErrorEventLog errorEventLog){
-        return new ResponseEntity<ErrorEventLog>(this.errorEventLogService.save(errorEventLog), HttpStatus.CREATED);
-    }
-
-//    A API não deve listar todos os logs, estou colocando este GET aqui só para testar
-    @GetMapping
-    @ApiOperation("Lista todos os logs")
-    public Iterable<ErrorEventLog> findAll(Pageable pageable) {
-        return this.errorEventLogService.findAll(pageable);
+    @ApiOperation("Create an error log")
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "Event created successfully")})
+    public ResponseEntity<ErrorEventLog> create(
+            @Valid @RequestBody ErrorEventLog errorEventLog){
+        return new ResponseEntity<ErrorEventLog>(
+                this.errorEventLogService.save(errorEventLog), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/event/{id}")
-    @ApiResponses(value = {@ApiResponse(code = 404, message = "Evento não localizado"), @ApiResponse(code = 200, message = "evento localizado")})
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "Event not found"),
+            @ApiResponse(code = 200, message = "Event found successfully")
+    })
     public ResponseEntity<ErrorEventLogDTO> getById(
             @PathVariable(value = "id") Long id
     ) {
         return new ResponseEntity<>(
                 mapStructMapper.errorEventLogToErrorEventLogDTO(
-                        this.errorEventLogService.findById(id).get()
-                ),
-                HttpStatus.OK
-        );
+                        this.errorEventLogService.findById(id).get()), HttpStatus.OK);
     }
 
-//    @GetMapping("/event/{id}")
-//    @ApiResponses(value = {@ApiResponse(code = 404, message = "Evento não localizado"), @ApiResponse(code = 200, message = "evento localizado")})
-//    public ResponseEntity<ErrorEventLog> getById(
-//            @PathVariable(value = "id") Long id
-//    ) {
-//        return new ResponseEntity<ErrorEventLog>(
-//                        this.errorEventLogService.findById(id).get(),
-//                HttpStatus.OK
-//        );
-//    }
-
-
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "registeredAfter", value = "The start date needs registeredBefore param", dataType = "string", example = "yyyy-mm-ddThh:mm:ss", paramType = "query" ),
-            @ApiImplicitParam(name = "registeredBefore", value = "The end date needs registeredAfter param", dataType = "string", example = "yyyy-mm-ddThh:mm:ss", paramType = "query"),
+            @ApiImplicitParam(name = "registeredAfter", value = "yyyy-mm-ddThh:mm:ss - The start date needs registeredBefore param", dataType = "string", paramType = "query" ),
+            @ApiImplicitParam(name = "registeredBefore", value = "yyyy-mm-ddThh:mm:ss - The end date needs registeredAfter param", dataType = "string", paramType = "query"),
             @ApiImplicitParam(name = "description", value = "search for ignore-case term", dataType = "string", paramType = "query"),
     })
-    @GetMapping("/event")
-    @ApiOperation("Filters events, given attributes, can be cumulative")
+    @GetMapping("/events")
+    @ApiOperation("It filters and sorts events, given attributes, the query can be cumulative")
     @ApiResponses(value = {
-            @ApiResponse(code = 404, message = "NOT_FOUND"),
-            @ApiResponse(code = 200, message = "SUCCESS")})
+            @ApiResponse(code = 200, message = "Event(s) found successfully")})
     public Page<ErrorEventLog> findEvents(
             ErrorEventLogSpec spec,
             @RequestParam(value = "log", required = false) String log,
             @RequestParam(value = "level", required = false) Levels level,
             @RequestParam(value = "origin", required = false) String origin,
             @RequestParam(value = "quantity", required = false) Long quantity,
-            @PageableDefault(size = 10, sort = "id") Pageable pageable) {
+            @RequestParam(value = "sort", required = false) String sort,
+            @PageableDefault(size = 10, direction = Sort.Direction.ASC) Pageable pageable) {
         return this.errorEventLogRepository.findAll(spec, pageable);
     }
 }
