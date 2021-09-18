@@ -29,7 +29,10 @@ public class ErrorEventLogController {
     private ErrorEventLogRepository errorEventLogRepository;
 
     @Autowired
-    public ErrorEventLogController(MapStructMapper mapStructMapper, ErrorEventLogService errorEventLogService, ErrorEventLogRepository errorEventLogRepository) {
+    public ErrorEventLogController(
+            MapStructMapper mapStructMapper,
+            ErrorEventLogService errorEventLogService,
+            ErrorEventLogRepository errorEventLogRepository) {
         this.mapStructMapper = mapStructMapper;
         this.errorEventLogService = errorEventLogService;
         this.errorEventLogRepository = errorEventLogRepository;
@@ -57,15 +60,23 @@ public class ErrorEventLogController {
                         this.errorEventLogService.findById(id).get()), HttpStatus.OK);
     }
 
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "registeredAfter", value = "yyyy-mm-ddThh:mm:ss - The start date needs registeredBefore param", dataType = "string", paramType = "query" ),
-            @ApiImplicitParam(name = "registeredBefore", value = "yyyy-mm-ddThh:mm:ss - The end date needs registeredAfter param", dataType = "string", paramType = "query"),
-            @ApiImplicitParam(name = "description", value = "search for ignore-case term", dataType = "string", paramType = "query"),
-    })
+
     @GetMapping("/events")
     @ApiOperation("It filters and sorts events, given attributes, the query can be cumulative")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Event(s) found successfully")})
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "registeredAfter",
+                    value = "yyyy-mm-ddThh:mm:ss - The start date needs registeredBefore param",
+                    dataType = "string",
+                    paramType = "query" ),
+            @ApiImplicitParam(
+                    name = "registeredBefore",
+                    value = "yyyy-mm-ddThh:mm:ss - The end date needs registeredAfter param",
+                    dataType = "string",
+                    paramType = "query"),
+            @ApiImplicitParam(name = "description", value = "search for ignore-case term", dataType = "string", paramType = "query")})
     public Page<ErrorEventLog> findEvents(
             ErrorEventLogSpec spec,
             @RequestParam(value = "log", required = false) String log,
