@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 public class ErrorEventLog {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @Column(length = 10)
