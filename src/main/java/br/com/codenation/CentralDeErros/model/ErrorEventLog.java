@@ -9,7 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import java.time.LocalDateTime;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-
+//only to deploy
 @Entity(name="error_event_log")
 public class ErrorEventLog {
 
