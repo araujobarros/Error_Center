@@ -22,6 +22,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/")
+@Api (value = "Error event log", description = "Manage error event log", tags = {"Error event log"})
 public class ErrorEventLogController {
 
     private MapStructMapper mapStructMapper;
