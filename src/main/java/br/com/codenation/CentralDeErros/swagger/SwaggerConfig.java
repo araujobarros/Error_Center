@@ -1,32 +1,31 @@
 package br.com.codenation.CentralDeErros.swagger;
 
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import springfox.documentation.builders.*;
 import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger.web.ApiKeyVehicle;
 import springfox.documentation.swagger.web.SecurityConfiguration;
 import springfox.documentation.swagger.web.SecurityConfigurationBuilder;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
 
-    @Value("${security.oauth2.client.client-id}")
-    private String CLIENT_ID;
-
-    @Value("${security.oauth2.client.client-secret}")
-    private String CLIENT_SECRET;
-
-    @Value("${host.full.dns.auth.link}")
-    private String AUTH_SERVER;
+    @Value("${config.oauth2.accessTokenUri=http://localhost:8080/oauth/token}")
+    private String accessTokenUri;
 
     @Bean
     public Docket apis() {
@@ -42,44 +41,54 @@ public class SwaggerConfig {
                 .securityContexts(Arrays.asList(securityContext()));
     }
 
-    @Bean
-    public SecurityConfiguration security() {
-        return SecurityConfigurationBuilder.builder()
-                .clientId("quero-quero")
-                .clientSecret("qu3r0-qu3r0")
-                .scopeSeparator(" ")
-                .useBasicAuthenticationWithAccessCodeGrant(true)
-                .build();
+    private OAuth securityScheme() {
+
+        List<AuthorizationScope> authorizationScopeList = new ArrayList<>();
+//        authorizationScopeList.add(new AuthorizationScope("read", "read all"));
+//        authorizationScopeList.add(new AuthorizationScope("write", "access all"));
+
+        List<GrantType> grantTypes = new ArrayList<>();
+        GrantType passwordCredentialsGrant = new ResourceOwnerPasswordCredentialsGrant(accessTokenUri);
+        grantTypes.add(passwordCredentialsGrant);
+
+        return new OAuth("oauth2", authorizationScopeList, grantTypes);
     }
 
-    private SecurityScheme securityScheme() {
-        GrantType grantType = new AuthorizationCodeGrantBuilder()
-                .tokenEndpoint(new TokenEndpoint(AUTH_SERVER + "/token", "oauthtoken"))
-                .tokenRequestEndpoint(
-                        new TokenRequestEndpoint(AUTH_SERVER + "/authorize", CLIENT_ID, CLIENT_SECRET))
-                .build();
-
-        SecurityScheme oauth = new OAuthBuilder().name("spring_oauth")
-                .grantTypes(Arrays.asList(grantType))
-                .scopes(Arrays.asList(scopes()))
-                .build();
-        return oauth;
-    }
-
-    private AuthorizationScope[] scopes() {
-        AuthorizationScope[] scopes = {
-                new AuthorizationScope("read", "for read operations"),
-                new AuthorizationScope("write", "for write operations"),
-                new AuthorizationScope("foo", "Access foo API") };
-        return scopes;
-    }
+//    private SecurityScheme securityScheme() {
+//        GrantType grantType = new AuthorizationCodeGrantBuilder()
+//                .tokenEndpoint(new TokenEndpoint(accessTokenUri, "oauthtoken"))
+//                .build();
+//
+//        SecurityScheme oauth = new OAuthBuilder().name("spring_oauth")
+//                .grantTypes(Arrays.asList(grantType))
+//                .build();
+//        return oauth;
+//    }
 
     private SecurityContext securityContext() {
-        return SecurityContext.builder()
-                .securityReferences(
-                        Arrays.asList(new SecurityReference("spring_oauth", scopes())))
-                .forPaths(PathSelectors.regex("/*"))
+        return SecurityContext.builder().securityReferences(defaultAuth())
                 .build();
+    }
+
+    private List<SecurityReference> defaultAuth() {
+
+//        final AuthorizationScope[] authorizationScopes = new AuthorizationScope[3];
+//        authorizationScopes[0] = new AuthorizationScope("read", "read all");
+//        authorizationScopes[1] = new AuthorizationScope("trust", "trust all");
+//        authorizationScopes[2] = new AuthorizationScope("write", "write all");
+
+        AuthorizationScope authorizationScope
+                = new AuthorizationScope("ADMIN", "accessEverything");
+        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
+        authorizationScopes[0] = authorizationScope;
+
+        return Collections.singletonList(new SecurityReference("oauth2", authorizationScopes));
+    }
+
+    @Bean
+    public SecurityConfiguration security() {
+        return new SecurityConfiguration
+                ("client", "secret", "", "", "Bearer access token", ApiKeyVehicle.HEADER, HttpHeaders.AUTHORIZATION,"");
     }
 
 
