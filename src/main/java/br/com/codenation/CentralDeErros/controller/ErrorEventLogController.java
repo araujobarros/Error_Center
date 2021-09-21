@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.swing.*;
@@ -44,10 +45,13 @@ public class ErrorEventLogController {
     @ApiOperation("Create an error log")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "Event created successfully")})
 
-    public ResponseEntity<ErrorEventLog> create(
+    public ResponseEntity<ErrorEventLogDTO> create(
             @Valid @RequestBody PostErrorEventLogDTO postErrorEventLogDTO){
-        return new ResponseEntity<ErrorEventLog>(
-                this.errorEventLogService.save(mapStructMapper.PostErrorEventLogDTOToerrorEventLog(postErrorEventLogDTO)), HttpStatus.CREATED);
+
+        ErrorEventLog saved = this.errorEventLogService.save(mapStructMapper.PostErrorEventLogDTOToerrorEventLog(postErrorEventLogDTO));
+
+        return new ResponseEntity<ErrorEventLogDTO>(mapStructMapper.errorEventLogToErrorEventLogDTO(saved)
+                , HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/event/{id}")
