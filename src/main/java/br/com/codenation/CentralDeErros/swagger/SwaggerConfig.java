@@ -1,6 +1,5 @@
 package br.com.codenation.CentralDeErros.swagger;
 
-import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +11,6 @@ import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger.web.ApiKeyVehicle;
 import springfox.documentation.swagger.web.SecurityConfiguration;
-import springfox.documentation.swagger.web.SecurityConfigurationBuilder;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.ArrayList;
@@ -42,11 +40,7 @@ public class SwaggerConfig {
     }
 
     private OAuth securityScheme() {
-
         List<AuthorizationScope> authorizationScopeList = new ArrayList<>();
-//        authorizationScopeList.add(new AuthorizationScope("read", "read all"));
-//        authorizationScopeList.add(new AuthorizationScope("write", "access all"));
-
         List<GrantType> grantTypes = new ArrayList<>();
         GrantType passwordCredentialsGrant = new ResourceOwnerPasswordCredentialsGrant(accessTokenUri);
         grantTypes.add(passwordCredentialsGrant);
@@ -54,29 +48,12 @@ public class SwaggerConfig {
         return new OAuth("oauth2", authorizationScopeList, grantTypes);
     }
 
-//    private SecurityScheme securityScheme() {
-//        GrantType grantType = new AuthorizationCodeGrantBuilder()
-//                .tokenEndpoint(new TokenEndpoint(accessTokenUri, "oauthtoken"))
-//                .build();
-//
-//        SecurityScheme oauth = new OAuthBuilder().name("spring_oauth")
-//                .grantTypes(Arrays.asList(grantType))
-//                .build();
-//        return oauth;
-//    }
-
     private SecurityContext securityContext() {
         return SecurityContext.builder().securityReferences(defaultAuth())
                 .build();
     }
 
     private List<SecurityReference> defaultAuth() {
-
-//        final AuthorizationScope[] authorizationScopes = new AuthorizationScope[3];
-//        authorizationScopes[0] = new AuthorizationScope("read", "read all");
-//        authorizationScopes[1] = new AuthorizationScope("trust", "trust all");
-//        authorizationScopes[2] = new AuthorizationScope("write", "write all");
-
         AuthorizationScope authorizationScope
                 = new AuthorizationScope("ADMIN", "accessEverything");
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
@@ -88,9 +65,8 @@ public class SwaggerConfig {
     @Bean
     public SecurityConfiguration security() {
         return new SecurityConfiguration
-                ("client", "secret", "", "", "Bearer access token", ApiKeyVehicle.HEADER, HttpHeaders.AUTHORIZATION,"");
+                ("quero-quero", "qu3r0-qu3r0", "", "", "Bearer access token", ApiKeyVehicle.HEADER, HttpHeaders.AUTHORIZATION,"");
     }
-
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
@@ -101,6 +77,5 @@ public class SwaggerConfig {
                 .licenseUrl("https://www.apache.org/licenses/LICENSE-2.0")
                 .contact(new Contact("Github", "https://github.com/araujobarros/Error_Center", "araujo.barros@matematica.ufrj.br"))
                 .build();
-
     }
 }

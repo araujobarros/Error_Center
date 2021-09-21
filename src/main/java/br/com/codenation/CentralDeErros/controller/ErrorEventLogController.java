@@ -1,6 +1,7 @@
 package br.com.codenation.CentralDeErros.controller;
 
 import br.com.codenation.CentralDeErros.DTO.ErrorEventLogDTO;
+import br.com.codenation.CentralDeErros.DTO.PostErrorEventLogDTO;
 import br.com.codenation.CentralDeErros.enums.Levels;
 import br.com.codenation.CentralDeErros.mapper.MapStructMapper;
 import br.com.codenation.CentralDeErros.model.ErrorEventLog;
@@ -39,13 +40,14 @@ public class ErrorEventLogController {
         this.errorEventLogRepository = errorEventLogRepository;
     }
 
-    @PostMapping
+    @PostMapping(value = "/event")
     @ApiOperation("Create an error log")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "Event created successfully")})
+
     public ResponseEntity<ErrorEventLog> create(
-            @Valid @RequestBody ErrorEventLog errorEventLog){
+            @Valid @RequestBody PostErrorEventLogDTO postErrorEventLogDTO){
         return new ResponseEntity<ErrorEventLog>(
-                this.errorEventLogService.save(errorEventLog), HttpStatus.CREATED);
+                this.errorEventLogService.save(mapStructMapper.PostErrorEventLogDTOToerrorEventLog(postErrorEventLogDTO)), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/event/{id}")

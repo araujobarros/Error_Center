@@ -15,6 +15,7 @@ public class ErrorEventLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private long id;
 
     @Column(length = 10)
@@ -41,6 +42,7 @@ public class ErrorEventLog {
     @Column(name = "created_at")
     @CreatedDate
     @CreationTimestamp
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime createdAt;
 
     public long getId() {
