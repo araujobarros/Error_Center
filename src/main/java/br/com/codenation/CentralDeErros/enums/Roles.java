@@ -2,7 +2,7 @@ package br.com.codenation.CentralDeErros.enums;
 
 public enum Roles {
 
-    ADMIN("ADMIN"), DEVELOPER("DEVELOPER");
+    ADMIN("ADMIN"), DEVELOPER("DEVELOPER"), USER("USER");
 
     private String roles;
 

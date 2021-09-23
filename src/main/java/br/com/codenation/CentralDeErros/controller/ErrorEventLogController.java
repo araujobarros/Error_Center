@@ -44,7 +44,6 @@ public class ErrorEventLogController {
     @PostMapping(value = "/event")
     @ApiOperation("Create an error log")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "Event created successfully")})
-
     public ResponseEntity<ErrorEventLogDTO> create(
             @Valid @RequestBody PostErrorEventLogDTO postErrorEventLogDTO){
 

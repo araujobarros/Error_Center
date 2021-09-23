@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -18,7 +19,7 @@ import java.util.List;
 @EnableAutoConfiguration
 @EnableJpaAuditing
 @SpringBootApplication
-public class CentralDeErrosApplication implements WebMvcConfigurer {
+public class CentralDeErrosApplication extends SpringBootServletInitializer implements WebMvcConfigurer  {
 
 	@Override
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
