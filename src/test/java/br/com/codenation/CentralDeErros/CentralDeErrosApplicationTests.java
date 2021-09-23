@@ -28,6 +28,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -100,6 +101,19 @@ class CentralDeErrosApplicationTests {
 	@Test
 	public void givenNoToken_whenGetSecureRequest_thenUnauthorized() throws Exception {
 		mockMvc.perform(get("/event").param("description", "teste")).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	public void givenInvalidRole_whenGetSecureRequest_thenForbidden() throws Exception {
+		String accessToken = obtainAccessToken("user", "user");
+		String employeeString = "{\"email\":\"jim@yahoo.com\",\"password\":\"123456\", \"role\":\"USER\"}";
+
+		mockMvc.perform(post("/user")
+				.header("Authorization", "Bearer " + accessToken)
+				.contentType(CONTENT_TYPE)
+      .content(employeeString)
+				.accept(CONTENT_TYPE))
+				.andExpect(status().isForbidden());
 	}
 
 }

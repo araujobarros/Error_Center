@@ -38,12 +38,12 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Roles role;
 
-    public User(Long id, String email, String password, Roles role) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-    }
+//    public User(Long id, String email, String password, Roles role) {
+//        this.id = id;
+//        this.email = email;
+//        this.password = password;
+//        this.role = role;
+//    }
 
     public Long getId() {
         return id;
