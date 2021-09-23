@@ -29,8 +29,8 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -117,16 +117,22 @@ class CentralDeErrosApplicationTests {
 	}
 
 	@Test
-	public void givenResponse_whenPostSecureRequest_thenOk() throws Exception {
+	public void postAnEvent_checkThis_thenOk() throws Exception {
 		String accessToken = obtainAccessToken("admin", "admin");
-		String employeeString = "{\"email\":\"jim@yahoo.com\",\"password\":\"123456\", \"role\":\"USER\"}";
+		String eventString = "{\"description\":\"description1\",\"level\":\"ERROR\",\"log\":\"log1\",\"origin\":\"origin1\"}";
 
-		mockMvc.perform(post("/user")
+		mockMvc.perform(post("/event")
 						.header("Authorization", "Bearer " + accessToken)
 						.contentType(CONTENT_TYPE)
-						.content(employeeString)
+						.content(eventString)
 						.accept(CONTENT_TYPE))
 						.andExpect(status().isCreated());
-	}
 
+		mockMvc.perform(get("/event/1")
+						.header("Authorization", "Bearer " + accessToken)
+						.accept("application/json;charset=UTF-8"))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(CONTENT_TYPE))
+      .andExpect(jsonPath("$.description", is("description1")));
+	}
 }
