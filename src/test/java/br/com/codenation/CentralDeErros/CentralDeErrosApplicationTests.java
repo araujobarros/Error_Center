@@ -104,16 +104,29 @@ class CentralDeErrosApplicationTests {
 	}
 
 	@Test
-	public void givenInvalidRole_whenGetSecureRequest_thenForbidden() throws Exception {
+	public void givenInvalidRole_whenPostSecureRequest_thenForbidden() throws Exception {
 		String accessToken = obtainAccessToken("user", "user");
 		String employeeString = "{\"email\":\"jim@yahoo.com\",\"password\":\"123456\", \"role\":\"USER\"}";
 
 		mockMvc.perform(post("/user")
 				.header("Authorization", "Bearer " + accessToken)
 				.contentType(CONTENT_TYPE)
-      .content(employeeString)
+      			.content(employeeString)
 				.accept(CONTENT_TYPE))
 				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void givenResponse_whenPostSecureRequest_thenOk() throws Exception {
+		String accessToken = obtainAccessToken("admin", "admin");
+		String employeeString = "{\"email\":\"jim@yahoo.com\",\"password\":\"123456\", \"role\":\"USER\"}";
+
+		mockMvc.perform(post("/user")
+						.header("Authorization", "Bearer " + accessToken)
+						.contentType(CONTENT_TYPE)
+						.content(employeeString)
+						.accept(CONTENT_TYPE))
+						.andExpect(status().isCreated());
 	}
 
 }
