@@ -10,7 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 @And({
         @Spec(params = "level", path = "level", spec = Equal.class),
-        @Spec(params = "log", path = "log", spec = Equal.class),
+        @Spec(params = "log", path = "log", spec = LikeIgnoreCase.class),
         @Spec(params = "origin", path = "origin", spec = Equal.class),
         @Spec(params = "description", path = "description", spec = LikeIgnoreCase.class),
         @Spec(params = "quantity", path = "quantity", spec = Equal.class),

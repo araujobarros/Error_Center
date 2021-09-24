@@ -3,6 +3,8 @@ package br.com.codenation.CentralDeErros;
 import br.com.codenation.CentralDeErros.controller.ErrorEventLogController;
 import br.com.codenation.CentralDeErros.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import mockit.Mock;
+import mockit.MockUp;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -22,6 +25,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 
 import static br.com.codenation.CentralDeErros.enums.Roles.DEVELOPER;
@@ -39,6 +45,7 @@ import static org.hamcrest.Matchers.is;
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
+//@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class CentralDeErrosApplicationTests {
 
 	@Autowired
@@ -120,19 +127,17 @@ class CentralDeErrosApplicationTests {
 	}
 
 
-//	public void postSomeEvents() throws Exception {
-//
-//	}
-
-	@Test
-	public void postSomeEvents_checkFilters_withoutParams() throws Exception {
-
+	public void postSomeEvents() throws Exception {
 		String accessToken = obtainAccessToken("admin", "admin");
 		ArrayList<String> events = new ArrayList<String>();
-		events.add("{\"description\":\"description1\",\"level\":\"ERROR\",\"log\":\"log1\",\"origin\":\"origin1\"}");
-		events.add("{\"description\":\"description2\",\"level\":\"WARNING\",\"log\":\"log2\",\"origin\":\"origin2\"}");
-		events.add("{\"description\":\"description3\",\"level\":\"WARNING\",\"log\":\"log3\",\"origin\":\"origin3\"}");
-		events.add("{\"description\":\"description3\",\"level\":\"ERROR\",\"log\":\"log3\",\"origin\":\"origin2\"}");
+
+
+
+
+		events.add("{\"description\":\"description1\",\"level\":\"ERROR\",\"log\":\"log1\",\"origin\":\"origin1\",\"created_At\":\"2021-09-12T10:46:06\"}");
+		events.add("{\"description\":\"description3\",\"level\":\"WARNING\",\"log\":\"log2\",\"origin\":\"origin2\",\"createdAt\":\"2021-09-13T10:46:06\"}");
+		events.add("{\"description\":\"description3\",\"level\":\"WARNING\",\"log\":\"log3\",\"origin\":\"origin3\",\"createdAt\":\"2021-09-14T10:46:06\"}");
+		events.add("{\"description\":\"description2\",\"level\":\"ERROR\",\"log\":\"log3\",\"origin\":\"origin2\",\"createdAt\":\"2021-09-15T10:46:06\"}");
 
 		for (String event : events) {
 			mockMvc.perform(post("/event")
@@ -142,6 +147,26 @@ class CentralDeErrosApplicationTests {
 							.accept(CONTENT_TYPE))
 					.andExpect(status().isCreated());
 		}
+	}
+
+	@Test
+	public void checkFilters_withoutParams() throws Exception {
+		String accessToken = obtainAccessToken("admin", "admin");
+
+		String instantExpected = "2014-12-21T10:15:30Z";
+		Clock clock = Clock.fixed(Instant.parse(instantExpected), ZoneId.of("UTC"));
+		new MockUp<Instant>() {
+			@Mock
+			public Instant now() {
+				return Instant.now(clock);
+			}
+		};
+
+		Instant now = Instant.now();
+
+		assertThat(now.toString()).isEqualTo(instantExpected);
+
+		postSomeEvents();
 
 		mockMvc.perform(get("/events")
 						.header("Authorization", "Bearer " + accessToken)
@@ -161,7 +186,6 @@ class CentralDeErrosApplicationTests {
 
 	@Test
 	public void checkSortedResults() throws Exception {
-
 		String accessToken = obtainAccessToken("admin", "admin");
 
 		mockMvc.perform(get("/events?sort=origin,desc&sort=level,asc")
@@ -176,6 +200,53 @@ class CentralDeErrosApplicationTests {
 				.andExpect(jsonPath("$.content[2].id", is(2)))
 				.andExpect(jsonPath("$.content[3].id", is(1)));
 	}
+
+	@Test
+	public void checkAggregationFilters_originAndLevel() throws Exception {
+
+		String accessToken = obtainAccessToken("admin", "admin");
+
+		mockMvc.perform(get("/events?origin=origin2&level=ERROR")
+						.header("Authorization", "Bearer " + accessToken)
+						.accept("application/json;charset=UTF-8"))
+
+				.andExpect(status().isOk())
+				.andDo(print())
+				.andExpect(jsonPath("$.content", hasSize(1)))
+				.andExpect(jsonPath("$.content[0].id", is(4)));
+	}
+
+	@Test
+	public void checkAggregationFilters_descriptionAndLog() throws Exception {
+
+		String accessToken = obtainAccessToken("admin", "admin");
+
+		mockMvc.perform(get("/events?description=tion3&log=g3")
+						.header("Authorization", "Bearer " + accessToken)
+						.accept("application/json;charset=UTF-8"))
+
+				.andExpect(status().isOk())
+				.andDo(print())
+				.andExpect(jsonPath("$.content", hasSize(1)))
+				.andExpect(jsonPath("$.content[0].id", is(3)));
+	}
+
+	@Test
+	public void checkAggregationFilters_dateInterval() throws Exception {
+
+		String accessToken = obtainAccessToken("admin", "admin");
+
+		mockMvc.perform(get("/events?registeredAfter=2021-09-24T00:00:00&registeredBefore=2021-09-24T23:59:59")
+						.header("Authorization", "Bearer " + accessToken)
+						.accept("application/json;charset=UTF-8"))
+
+				.andExpect(status().isOk())
+				.andDo(print())
+				.andExpect(jsonPath("$.content", hasSize(4)));
+//				.andExpect(jsonPath("$.content[0].id", is(2)))
+//				.andExpect(jsonPath("$.content[1].id", is(3)));
+	}
+
 }
 
 

@@ -42,7 +42,6 @@ public class ErrorEventLog {
     @Column(name = "created_at")
     @CreatedDate
     @CreationTimestamp
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime createdAt;
 
     public long getId() {
