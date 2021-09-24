@@ -22,8 +22,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.ArrayList;
+
 import static br.com.codenation.CentralDeErros.enums.Roles.DEVELOPER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -135,4 +138,50 @@ class CentralDeErrosApplicationTests {
 				.andExpect(content().contentType(CONTENT_TYPE))
       .andExpect(jsonPath("$.description", is("description1")));
 	}
+
+
+	public void postSomeEvents() throws Exception {
+		String accessToken = obtainAccessToken("admin", "admin");
+		ArrayList<String> events = new ArrayList<String>();
+		events.add("{\"description\":\"description1\",\"level\":\"ERROR\",\"log\":\"log1\",\"origin\":\"origin1\"}");
+		events.add("{\"description\":\"description2\",\"level\":\"WARNING\",\"log\":\"log2\",\"origin\":\"origin2\"}");
+		events.add("{\"description\":\"description3\",\"level\":\"WARNING\",\"log\":\"log3\",\"origin\":\"origin3\"}");
+		events.add("{\"description\":\"description3\",\"level\":\"ERROR\",\"log\":\"log3\",\"origin\":\"origin2\"}");
+
+		for (String event : events) {
+			mockMvc.perform(post("/event")
+							.header("Authorization", "Bearer " + accessToken)
+							.contentType(CONTENT_TYPE)
+							.content(event)
+							.accept(CONTENT_TYPE))
+					.andExpect(status().isCreated());
+		}
+	}
+
+	@Test
+	public void checkFilters_withoutParams() throws Exception {
+
+		String accessToken = obtainAccessToken("admin", "admin");
+		postSomeEvents();
+
+		mockMvc.perform(get("/events/?")
+						.header("Authorization", "Bearer " + accessToken)
+						.accept("application/json;charset=UTF-8"))
+
+				.andExpect(status().isOk())
+				.andDo(print())
+//				.andExpect(content().contentType(CONTENT_TYPE))
+				.andExpect(jsonPath("$.content", hasSize(4)));
+
+//		ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+//		verify(errorEventLogRepository).findAll(pageableCaptor.capture());
+//		PageRequest pageable = (PageRequest) pageableCaptor.getValue();
+//
+//		assertThat(pageable).hasNoNullFieldsOrPropertiesExcept();
+//		assertThat(pageable).hasFieldOrPropertyWithValue("description", "description1");
+	}
 }
+
+
+
+
