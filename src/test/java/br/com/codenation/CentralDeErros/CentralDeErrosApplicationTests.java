@@ -119,28 +119,14 @@ class CentralDeErrosApplicationTests {
 				.andExpect(status().isForbidden());
 	}
 
+
+//	public void postSomeEvents() throws Exception {
+//
+//	}
+
 	@Test
-	public void postAnEvent_checkThis_thenOk() throws Exception {
-		String accessToken = obtainAccessToken("admin", "admin");
-		String eventString = "{\"description\":\"description1\",\"level\":\"ERROR\",\"log\":\"log1\",\"origin\":\"origin1\"}";
+	public void postSomeEvents_checkFilters_withoutParams() throws Exception {
 
-		mockMvc.perform(post("/event")
-						.header("Authorization", "Bearer " + accessToken)
-						.contentType(CONTENT_TYPE)
-						.content(eventString)
-						.accept(CONTENT_TYPE))
-						.andExpect(status().isCreated());
-
-		mockMvc.perform(get("/event/1")
-						.header("Authorization", "Bearer " + accessToken)
-						.accept("application/json;charset=UTF-8"))
-				.andExpect(status().isOk())
-				.andExpect(content().contentType(CONTENT_TYPE))
-      .andExpect(jsonPath("$.description", is("description1")));
-	}
-
-
-	public void postSomeEvents() throws Exception {
 		String accessToken = obtainAccessToken("admin", "admin");
 		ArrayList<String> events = new ArrayList<String>();
 		events.add("{\"description\":\"description1\",\"level\":\"ERROR\",\"log\":\"log1\",\"origin\":\"origin1\"}");
@@ -156,21 +142,13 @@ class CentralDeErrosApplicationTests {
 							.accept(CONTENT_TYPE))
 					.andExpect(status().isCreated());
 		}
-	}
 
-	@Test
-	public void checkFilters_withoutParams() throws Exception {
-
-		String accessToken = obtainAccessToken("admin", "admin");
-		postSomeEvents();
-
-		mockMvc.perform(get("/events/?")
+		mockMvc.perform(get("/events")
 						.header("Authorization", "Bearer " + accessToken)
 						.accept("application/json;charset=UTF-8"))
 
 				.andExpect(status().isOk())
 				.andDo(print())
-//				.andExpect(content().contentType(CONTENT_TYPE))
 				.andExpect(jsonPath("$.content", hasSize(4)));
 
 //		ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
@@ -179,6 +157,24 @@ class CentralDeErrosApplicationTests {
 //
 //		assertThat(pageable).hasNoNullFieldsOrPropertiesExcept();
 //		assertThat(pageable).hasFieldOrPropertyWithValue("description", "description1");
+	}
+
+	@Test
+	public void checkSortedResults() throws Exception {
+
+		String accessToken = obtainAccessToken("admin", "admin");
+
+		mockMvc.perform(get("/events?sort=origin,desc&sort=level,asc")
+						.header("Authorization", "Bearer " + accessToken)
+						.accept("application/json;charset=UTF-8"))
+
+				.andExpect(status().isOk())
+				.andDo(print())
+				.andExpect(jsonPath("$.content", hasSize(4)))
+				.andExpect(jsonPath("$.content[0].id", is(3)))
+				.andExpect(jsonPath("$.content[1].id", is(4)))
+				.andExpect(jsonPath("$.content[2].id", is(2)))
+				.andExpect(jsonPath("$.content[3].id", is(1)));
 	}
 }
 
