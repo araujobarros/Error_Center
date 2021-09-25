@@ -13,7 +13,8 @@ import org.springframework.data.jpa.domain.Specification;
         @Spec(params = "log", path = "log", spec = LikeIgnoreCase.class),
         @Spec(params = "origin", path = "origin", spec = Equal.class),
         @Spec(params = "description", path = "description", spec = LikeIgnoreCase.class),
-        @Spec(params = "quantity", path = "quantity", spec = Equal.class),
+//        @Spec(params = "quantity", path = "quantity", spec = Equal.class),
+        @Spec(path="quantity", params={"greaterThan","lessThan"}, spec= Between.class),
         @Spec(path="createdAt", params={"registeredAfter","registeredBefore"}, spec= Between.class),
 })
 public interface ErrorEventLogSpec extends Specification<ErrorEventLog> {

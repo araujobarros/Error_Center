@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Setter
 @Getter
 @AllArgsConstructor
@@ -20,4 +22,6 @@ public class PostErrorEventLogDTO {
     private String description;
     @JsonProperty("origin")
     private String origin;
+    @JsonProperty("quantity")
+    private Long quantity = 0L;
 }

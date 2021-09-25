@@ -37,7 +37,7 @@ public class ErrorEventLog {
     private String origin;
 
     @Column
-    private Long quantity = 0L;
+    private Long quantity = 1L;
 
     @Column(name = "created_at")
     @CreatedDate

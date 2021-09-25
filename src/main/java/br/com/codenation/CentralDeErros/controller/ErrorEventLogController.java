@@ -74,13 +74,21 @@ public class ErrorEventLogController {
     @ApiImplicitParams({
             @ApiImplicitParam(
                     name = "registeredAfter",
-                    value = "yyyy-mm-ddThh:mm:ss - The start date needs registeredBefore param",
+                    value = "yyyy-mm-ddThh:mm:ss - This field needs registeredBefore param",
                     dataType = "string",
                     paramType = "query" ),
             @ApiImplicitParam(
                     name = "registeredBefore",
-                    value = "yyyy-mm-ddThh:mm:ss - The end date needs registeredAfter param",
+                    value = "yyyy-mm-ddThh:mm:ss - This field needs registeredAfter param",
                     dataType = "string",
+                    paramType = "query"),
+            @ApiImplicitParam(
+                    name = "greaterThan",
+                    value = "This field needs lessThan param",
+                    paramType = "query" ),
+            @ApiImplicitParam(
+                    name = "lessThan",
+                    value = "This field needs greaterThan param",
                     paramType = "query"),
             @ApiImplicitParam(name = "description", value = "search for ignore-case term", dataType = "string", paramType = "query")})
     public Page<ErrorEventLog> findEvents(
@@ -88,7 +96,7 @@ public class ErrorEventLogController {
             @RequestParam(value = "log", required = false) String log,
             @RequestParam(value = "level", required = false) Levels level,
             @RequestParam(value = "origin", required = false) String origin,
-            @RequestParam(value = "quantity", required = false) Long quantity,
+//            @RequestParam(value = "quantity", required = false) Long quantity,
             @RequestParam(value = "sort", required = false) String sort,
             @PageableDefault(size = 10, direction = Sort.Direction.ASC) Pageable pageable) {
         return this.errorEventLogRepository.findAll(spec, pageable);
