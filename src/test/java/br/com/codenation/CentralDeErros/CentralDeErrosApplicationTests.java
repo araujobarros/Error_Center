@@ -290,6 +290,22 @@ class CentralDeErrosApplicationTests {
 
 	}
 
+	@Order(12)
+	@Test
+	public void stage12_checkSearchId_thenErrorResponse() throws Exception {
+		String accessToken = obtainAccessToken("admin", "admin");
+
+//		postSomeEvents();
+
+		mockMvc.perform(get("/event/5")
+						.header("Authorization", "Bearer " + accessToken)
+						.accept("application/json;charset=UTF-8"))
+
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$", is("Resource: ErrorEventLog not found")))
+				.andDo(print());
+	}
+
 }
 
 

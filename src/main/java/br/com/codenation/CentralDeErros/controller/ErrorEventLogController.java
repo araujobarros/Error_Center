@@ -2,6 +2,7 @@ package br.com.codenation.CentralDeErros.controller;
 
 import br.com.codenation.CentralDeErros.DTO.ErrorEventLogDTO;
 import br.com.codenation.CentralDeErros.DTO.PostErrorEventLogDTO;
+import br.com.codenation.CentralDeErros.controller.advice.ResourceNotFoundException;
 import br.com.codenation.CentralDeErros.enums.Levels;
 import br.com.codenation.CentralDeErros.mapper.MapStructMapper;
 import br.com.codenation.CentralDeErros.model.ErrorEventLog;
@@ -61,14 +62,17 @@ public class ErrorEventLogController {
     public ResponseEntity<ErrorEventLogDTO> getById(
             @PathVariable(value = "id") Long id
     ) {
-        return new ResponseEntity<>(
-                mapStructMapper.errorEventLogToErrorEventLogDTO(
-                        this.errorEventLogService.findById(id).get()), HttpStatus.OK);
+//        return new ResponseEntity<>(
+//                mapStructMapper.errorEventLogToErrorEventLogDTO(
+//                        this.errorEventLogService.findById(id).get()), HttpStatus.OK);
+
+        return new ResponseEntity<ErrorEventLogDTO>(mapStructMapper.errorEventLogToErrorEventLogDTO(
+                        this.errorEventLogService.findById(id).orElseThrow(() -> new ResourceNotFoundException("ErrorEventLog"))), HttpStatus.OK);
     }
 
 
     @GetMapping("/events")
-    @ApiOperation("It filters and sorts events, given attributes, the query can be cumulative")
+    @ApiOperation("This endpoint filters and sorts events, given attributes, the query can be cumulative, if no events are found returns an empty list ")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Event(s) found successfully")})
     @ApiImplicitParams({
