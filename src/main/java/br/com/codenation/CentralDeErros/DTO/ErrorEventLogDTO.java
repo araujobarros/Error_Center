@@ -28,4 +28,6 @@ public class ErrorEventLogDTO {
     private String origin;
     @JsonProperty("createdAt")
     private LocalDateTime createdAt;
+    @JsonProperty("quantity")
+    private Long quantity;
 }

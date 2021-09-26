@@ -10,6 +10,8 @@ import br.com.codenation.CentralDeErros.repository.ErrorEventLogRepository;
 import br.com.codenation.CentralDeErros.service.ErrorEventLogService;
 import br.com.codenation.CentralDeErros.specification.ErrorEventLogSpec;
 import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,10 +19,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.*;
 import javax.validation.Valid;
 
 @RestController
@@ -31,6 +31,9 @@ public class ErrorEventLogController {
     private MapStructMapper mapStructMapper;
     private ErrorEventLogService errorEventLogService;
     private ErrorEventLogRepository errorEventLogRepository;
+
+    private static final Logger log =
+            LoggerFactory.getLogger(ErrorEventLogController.class);
 
     @Autowired
     public ErrorEventLogController(
@@ -47,11 +50,15 @@ public class ErrorEventLogController {
     @ApiResponses(value = {@ApiResponse(code = 201, message = "Event created successfully")})
     public ResponseEntity<ErrorEventLogDTO> create(
             @Valid @RequestBody PostErrorEventLogDTO postErrorEventLogDTO){
+        try {
+            ErrorEventLog saved = this.errorEventLogService.save(mapStructMapper.PostErrorEventLogDTOToerrorEventLog(postErrorEventLogDTO));
 
-        ErrorEventLog saved = this.errorEventLogService.save(mapStructMapper.PostErrorEventLogDTOToerrorEventLog(postErrorEventLogDTO));
-
-        return new ResponseEntity<ErrorEventLogDTO>(mapStructMapper.errorEventLogToErrorEventLogDTO(saved)
-                , HttpStatus.CREATED);
+            return new ResponseEntity<ErrorEventLogDTO>(mapStructMapper.errorEventLogToErrorEventLogDTO(saved)
+                    , HttpStatus.CREATED);
+        } catch (Exception e) {
+            log.info("an internal error occurred, it was not possible to complete this request");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping(value = "/event/{id}")
@@ -62,12 +69,9 @@ public class ErrorEventLogController {
     public ResponseEntity<ErrorEventLogDTO> getById(
             @PathVariable(value = "id") Long id
     ) {
-//        return new ResponseEntity<>(
-//                mapStructMapper.errorEventLogToErrorEventLogDTO(
-//                        this.errorEventLogService.findById(id).get()), HttpStatus.OK);
 
         return new ResponseEntity<ErrorEventLogDTO>(mapStructMapper.errorEventLogToErrorEventLogDTO(
-                        this.errorEventLogService.findById(id).orElseThrow(() -> new ResourceNotFoundException("ErrorEventLog"))), HttpStatus.OK);
+                        this.errorEventLogService.findById(id).orElseThrow(() -> new ResourceNotFoundException("Event"))), HttpStatus.OK);
     }
 
 
@@ -94,13 +98,12 @@ public class ErrorEventLogController {
                     name = "lessThan",
                     value = "This field needs greaterThan param",
                     paramType = "query"),
-            @ApiImplicitParam(name = "description", value = "search for ignore-case term", dataType = "string", paramType = "query")})
+            @ApiImplicitParam(name = "description", value = "search for ignore-case term", dataType = "string", paramType = "query"),
+            @ApiImplicitParam(name = "log", value = "search for ignore-case term", dataType = "string", paramType = "query")})
     public Page<ErrorEventLog> findEvents(
             ErrorEventLogSpec spec,
-            @RequestParam(value = "log", required = false) String log,
             @RequestParam(value = "level", required = false) Levels level,
             @RequestParam(value = "origin", required = false) String origin,
-//            @RequestParam(value = "quantity", required = false) Long quantity,
             @RequestParam(value = "sort", required = false) String sort,
             @PageableDefault(size = 10, direction = Sort.Direction.ASC) Pageable pageable) {
         return this.errorEventLogRepository.findAll(spec, pageable);

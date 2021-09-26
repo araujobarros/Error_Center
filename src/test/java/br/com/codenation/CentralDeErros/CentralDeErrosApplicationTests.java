@@ -1,29 +1,20 @@
 package br.com.codenation.CentralDeErros;
 
 import br.com.codenation.CentralDeErros.controller.ErrorEventLogController;
-import br.com.codenation.CentralDeErros.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JacksonJsonParser;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.web.FilterChainProxy;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -31,18 +22,13 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.time.Clock;
-import java.time.Instant;
+
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 
-import static br.com.codenation.CentralDeErros.enums.Roles.DEVELOPER;
-import static java.time.Instant.ofEpochMilli;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -54,7 +40,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 //@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-//@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class CentralDeErrosApplicationTests {
 
 	@Autowired
@@ -65,32 +50,22 @@ class CentralDeErrosApplicationTests {
 
 	@Autowired
 	private FilterChainProxy springSecurityFilterChain;
-//	@Autowired
-//	private WebApplicationContext webApplicationContext;
-
 
 	@Autowired
 	private MockMvc mockMvc;
-//
+
 	@Autowired
 	private ObjectMapper objectMapper;
 
 	private static final String CLIENT_ID = "quero-quero";
 	private static final String CLIENT_SECRET = "qu3r0-qu3r0";
-
 	private static final String CONTENT_TYPE = "application/json;charset=UTF-8";
-
 	private static final String EMAIL = "admin";
 
 	@Before
 	public void setup() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).addFilter(springSecurityFilterChain).build();
 	}
-//	@Before
-//	public void init() throws Exception {
-//		mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
-//	}
-
 
 	private String obtainAccessToken(String username, String password) throws Exception {
 		final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -111,6 +86,7 @@ class CentralDeErrosApplicationTests {
 		JacksonJsonParser jsonParser = new JacksonJsonParser();
 		return jsonParser.parseMap(resultString).get("access_token").toString();
 	}
+
 
 	@Order(1)
 	@Test
@@ -137,6 +113,7 @@ class CentralDeErrosApplicationTests {
 				.accept(CONTENT_TYPE))
 				.andExpect(status().isForbidden());
 	}
+
 	@Order(4)
 	@Test
 	public void stage4_postSomeEvents() throws Exception {
@@ -164,7 +141,7 @@ class CentralDeErrosApplicationTests {
 
 	@Order(5)
 	@Test
-	public void stage5_checkFilters_withoutParams_thenPageResponse() throws Exception {
+	public void stage5_checkFilters_withoutParams_thenPageResponseWithoutLog() throws Exception {
 		String accessToken = obtainAccessToken("admin", "admin");
 
 //		postSomeEvents();
@@ -180,7 +157,6 @@ class CentralDeErrosApplicationTests {
 				.andExpect(jsonPath("$", hasKey("pageable")));
 
 	}
-
 
 	@Order(6)
 	@Test
@@ -292,7 +268,7 @@ class CentralDeErrosApplicationTests {
 
 	@Order(12)
 	@Test
-	public void stage12_checkSearchId_thenErrorResponse() throws Exception {
+	public void stage12_checkSearchId_thenNotFoundResponse() throws Exception {
 		String accessToken = obtainAccessToken("admin", "admin");
 
 //		postSomeEvents();
@@ -302,12 +278,21 @@ class CentralDeErrosApplicationTests {
 						.accept("application/json;charset=UTF-8"))
 
 				.andExpect(status().isNotFound())
-				.andExpect(jsonPath("$", is("Resource: ErrorEventLog not found")))
+				.andExpect(jsonPath("$", is("Resource: Event not found")))
 				.andDo(print());
 	}
 
+	@Order(13)
+	@Test
+	public void 		stage13_postIncorrectEvents_thenBadRequestResponse() throws Exception {
+		String accessToken = obtainAccessToken("admin", "admin");
+		String event = "{\"description\":\"description1\",\"log\":\"log1\",\"origin\":\"origin1\", \"quantity\":\"1\"}";
+
+		mockMvc.perform(post("/event")
+						.header("Authorization", "Bearer " + accessToken)
+						.contentType(CONTENT_TYPE)
+						.content(event)
+						.accept(CONTENT_TYPE))
+				.andExpect(status().isBadRequest());
+	}
 }
-
-
-
-
