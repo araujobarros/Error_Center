@@ -14,17 +14,5 @@ public interface ErrorEventLogService {
 
     Optional<ErrorEventLog> findById(Long id);
 
-//    Page<ErrorEventLog> findByLevel(Levels level, Pageable pageable);
-
-//    Page<ErrorEventLog> findByLog(String log, Pageable pageable);
-//
-//    Page<ErrorEventLog> findByOrigin(String origin, Pageable pageable);
-//
-//    Page<ErrorEventLog> findByDescriptionContaining(String description, Pageable pageable);
-//
-//    Page<ErrorEventLog> findByQuantity(Long quantity, Pageable pageable);
-//
-//    Page<ErrorEventLog> findByCreatedAt(LocalDateTime createdAt, Pageable pageable);
-
     ErrorEventLog save(ErrorEventLog errorEventLog);
 }

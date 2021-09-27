@@ -1,23 +1,22 @@
 package br.com.codenation.CentralDeErros.DTO;
 
-
 import br.com.codenation.CentralDeErros.enums.Levels;
-import br.com.codenation.CentralDeErros.model.ErrorEventLog;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ErrorEventLogDTO {
-    @JsonProperty("id")
-    private Long id;
+public class PostErrorEventLogDTO {
     @JsonProperty("level")
     private Levels level;
     @JsonProperty("log")
@@ -26,8 +25,6 @@ public class ErrorEventLogDTO {
     private String description;
     @JsonProperty("origin")
     private String origin;
-    @JsonProperty("createdAt")
-    private LocalDateTime createdAt;
     @JsonProperty("quantity")
-    private Long quantity;
+    private Long quantity = 0L;
 }

@@ -5,16 +5,22 @@ import br.com.codenation.CentralDeErros.enums.Levels;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.format.annotation.NumberFormat;
 
 import java.time.LocalDateTime;
 import javax.persistence.*;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
+
 //only to deploy
 @Entity(name="error_event_log")
 public class ErrorEventLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private long id;
 
     @Column(length = 10)
@@ -36,7 +42,8 @@ public class ErrorEventLog {
     private String origin;
 
     @Column
-    private Long quantity = 0L;
+    @PositiveOrZero
+    private Long quantity = 1L;
 
     @Column(name = "created_at")
     @CreatedDate
