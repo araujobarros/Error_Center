@@ -22,7 +22,7 @@ import java.util.List;
 @EnableSwagger2
 public class SwaggerConfig {
 
-    @Value("${config.oauth2.accessTokenUri=http://localhost:8080/oauth/token}")
+    @Value("${config.oauth2.accessTokenUri=https://error-center-qq.herokuapp.com/oauth/token}")
     private String accessTokenUri;
 
     @Bean
