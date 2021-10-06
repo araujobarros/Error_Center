@@ -28,7 +28,7 @@ Nesta aplicação deverá ser possível cadastrar erros e fazer consultas, além
 - Heroku
 - Swagger
 
-###Diretrizes
+### Diretrizes
 
 Seguem a baixo as diretrizes sob as quais o projeto foi construído.
 
